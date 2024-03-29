@@ -6,7 +6,7 @@
 /*   By: nlaerema <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 17:16:09 by nlaerema          #+#    #+#             */
-/*   Updated: 2024/03/29 03:09:01 by nlaerema         ###   ########.fr       */
+/*   Updated: 2024/03/29 13:27:02 by nlaerema         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
-#include <iostream>
 
 template <class BidirIt>
 static void _mergePair(BidirIt first, BidirIt middle, BidirIt last)
@@ -124,8 +123,10 @@ template <class Container>
 clock_t			mergeInsertSort(Container &s)
 {
 	clock_t							clockStart(std::clock());
+	typename Container::iterator	insertFirst;
 	size_t							groupFirst;
-	typename Container::iterator	nextGroup;
+	size_t							groupLast;
+	size_t							groupNext;
 	Container						x;
 
 	s.swap(x);
@@ -133,12 +134,15 @@ clock_t			mergeInsertSort(Container &s)
 		_mergePairSort(x.begin(), --x.end(), x.size());
 	else
 		_mergePairSort(x.begin(), x.end(), x.size());
+	groupLast = 2;
 	groupFirst = 2;
-	nextGroup = _insertJacobsthalSort(s, x.begin(), x.end(), 0, groupFirst);
-	while (nextGroup != x.end())
+	insertFirst = _insertJacobsthalSort(s, x.begin(), x.end(), 0, groupLast);
+	while (insertFirst != x.end())
 	{
-		nextGroup = _insertJacobsthalSort(s, nextGroup, x.end(), groupFirst, groupFirst * 2);
-		groupFirst *= 2;
+		groupNext = groupLast + groupFirst * 2;
+		groupFirst = groupLast;
+		groupLast = groupNext;
+		insertFirst = _insertJacobsthalSort(s, insertFirst, x.end(), groupFirst, groupLast);
 	}
 	return (std::clock() - clockStart);
 }

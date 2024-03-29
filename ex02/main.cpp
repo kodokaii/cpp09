@@ -6,7 +6,7 @@
 /*   By: nlaerema <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 20:04:23 by nlaerema          #+#    #+#             */
-/*   Updated: 2024/03/29 03:13:42 by nlaerema         ###   ########.fr       */
+/*   Updated: 2024/03/29 13:26:46 by nlaerema         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <deque>
 #include <climits>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include "PmergeMe.hpp"
 
@@ -61,7 +62,11 @@ int	main(int argc, char *argv[])
 	for (i = 1; i < argc; i++)
 		std::cout << " " << deque[i - 1];
 	std::cout << std::endl;
-	std::cout << "Time to process a range of " << argc - 1 << " elements with std::list :  " << CLOCK_TO_US(listClock) << "us" << std::endl;
-	std::cout << "Time to process a range of " << argc - 1 << " elements with std::deque : " << CLOCK_TO_US(dequeClock) << "us" << std::endl;
+	std::cout << "Time to process a range of " << argc - 1
+		<< " elements with std::list :  " << std::fixed << std::setprecision(2)
+		<< CLOCK_TO_US(listClock) << "us" << std::endl;
+	std::cout << "Time to process a range of " << argc - 1
+		<< " elements with std::deque : " << std::fixed << std::setprecision(2)
+		<< CLOCK_TO_US(dequeClock) << "us" << std::endl;
 	return (EXIT_SUCCESS);
 }
