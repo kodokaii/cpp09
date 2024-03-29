@@ -6,7 +6,7 @@
 /*   By: nlaerema <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 17:16:09 by nlaerema          #+#    #+#             */
-/*   Updated: 2024/03/29 03:05:27 by nlaerema         ###   ########.fr       */
+/*   Updated: 2024/03/29 03:09:01 by nlaerema         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,8 +114,7 @@ static BidirIt	_insertJacobsthalSort(Container &s, BidirIt first, BidirIt last, 
 		else
 		{
 			next = _insertJacobsthalSort(s, next, last, groupFirst + 1, groupEnd);
-			//BEUGER
-			_insert(s, s.begin(), first, std::min(groupFirst, s.size()));
+			_insert(s, s.begin(), first, s.size());
 		}
 	}
 	return (next);
