@@ -6,7 +6,7 @@
 /*   By: nlaerema <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/25 16:14:35 by nlaerema          #+#    #+#             */
-/*   Updated: 2024/03/25 20:31:56 by nlaerema         ###   ########.fr       */
+/*   Updated: 2024/03/29 15:05:17 by nlaerema         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ size_t	parseValue(float &output, std::string const &str, size_t start)
 	d = std::strtod(cstr, &end);
 	if (d < 0)
 		throw (std::underflow_error("not a positive number"));
-	if (INT_MAX < d)
+	if (1000 < d)
 		throw (std::overflow_error("too large a number"));
 	if (end == cstr)
 		throw (std::runtime_error("missing value"));
