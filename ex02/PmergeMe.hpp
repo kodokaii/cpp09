@@ -6,7 +6,7 @@
 /*   By: nlaerema <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 17:16:09 by nlaerema          #+#    #+#             */
-/*   Updated: 2024/03/29 13:27:02 by nlaerema         ###   ########.fr       */
+/*   Updated: 2024/11/12 09:29:52 by nlaerema         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,133 +16,149 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <iostream>
 
-template <class BidirIt>
-static void _mergePair(BidirIt first, BidirIt middle, BidirIt last)
+namespace std 
 {
-	typedef typename std::iterator_traits<BidirIt>::value_type	Container;
-
-	Container	tmpBegin[distance(first, last)];
-	Container	*tmpEnd;
-	BidirIt		a;
-	BidirIt		b;
-
-	a = first;
-	b = middle;
-	tmpEnd = tmpBegin;
-	while (a != middle && b != last)
+	template< class InputIt >
+	InputIt next(InputIt it, size_t n)
 	{
-		if (*a < *b)
-		{
-			*tmpEnd++ = *a++;
-			*tmpEnd++ = *a++;
-		}
-		else
-		{
-			*tmpEnd++ = *b++;
-			*tmpEnd++ = *b++;
-		}
-	}
-	while (a != middle)
-	{
-		*tmpEnd++ = *a++;
-		*tmpEnd++ = *a++;
-	}
-	std::copy(tmpBegin, tmpEnd, first);
-}
-
-template <class BidirIt>
-static void	_mergePairSort(BidirIt first, BidirIt last, size_t size)
-{
-	BidirIt		middle;
-	size_t		middleSize;	
-
-	if (2 <= size)
-	{
-		middle = first;
-		middleSize = size / 2;
-		std::advance(middle, middleSize - (middleSize % 2));
-		if (2 < size)
-		{
-			_mergePairSort(first, middle, middleSize - (middleSize % 2));
-			_mergePairSort(middle, last, middleSize + (middleSize % 2));
-			_mergePair(first, middle, last);	
-		}
-		else if (*first < *++middle)
-			std::iter_swap(first, middle);
+		std::advance(it, n);
+		return (it);
 	}
 }
 
-template <class Container, class BidirIt>
-static void	_insert(Container &s, BidirIt first, BidirIt pos, size_t size)
+template <typename Integer>
+inline Integer floorMult(Integer i, Integer mult)
 {
-	BidirIt		middle;
+	return (i - i % mult);
+}
 
-	if (2 <= size)
+template <class InputIt>
+struct Unit {
+	InputIt	begin;
+	InputIt value;
+	InputIt end;
+
+	InputIt init(InputIt it, size_t unitSize)
 	{
-		middle = first;
-		std::advance(middle, size / 2);
-		if (*pos < *middle)
-			_insert(s, first, pos, size / 2);
+		this->begin = it;
+		std::advance(it, unitSize - 1);
+		this->value = it;		
+		it++;
+		this->end = it;
+		return (it);
+	}
+};
+
+template <class Container>
+static void	_pairSort(Container &x, size_t unitSize)
+{
+	typedef typename Container::iterator	InputIt;
+	Unit<InputIt>	unit[2];
+	InputIt			it;
+
+	it = x.begin();
+	for (size_t i = 0; i + unitSize * 2 <= x.size(); i += unitSize * 2)
+	{
+		it = unit[0].init(it, unitSize);
+		it = unit[1].init(it, unitSize);
+		if (*unit[1].value < *unit[0].value)
+			std::swap_ranges(unit[0].begin, unit[0].end, unit[1].begin);
+	}
+}
+
+template <class Container, class InputIt>
+static void	_insert(Container &s, InputIt first, Unit<InputIt> const &unit, size_t unitSize, size_t size)
+{
+	size_t			middleSize;
+	Unit<InputIt>	middle;
+
+	if (2 * unitSize <= size)
+	{
+		middleSize = floorMult(size / 2, unitSize);
+		middle.init(std::next(first, middleSize), unitSize);
+		if (*unit.value < *middle.value)
+			_insert(s, first, unit, unitSize, middleSize);
 		else
-			_insert(s, middle, pos, (size + 1) / 2);
+			_insert(s, middle.begin, unit, unitSize, size - middleSize);
+	}
+	else if (unitSize <= size)
+	{
+		middle.init(first, unitSize);
+		if (*middle.value < *unit.value)
+			s.insert(middle.end, unit.begin, unit.end);
+		else
+			s.insert(first, unit.begin, unit.end);
 	}
 	else
-	{
-		if (*first < *pos)
-			s.insert(++first, *pos);
-		else
-			s.insert(first, *pos);
-	}
+		s.insert(first, unit.begin, unit.end);
 }
 
-template <class Container, class BidirIt>
-static BidirIt	_insertJacobsthalSort(Container &s, BidirIt first, BidirIt last, size_t groupFirst, size_t groupEnd)
+template <class Container, class InputIt>
+static InputIt	_insertGroup(Container &s, InputIt it, InputIt end, size_t unitSize, size_t size, bool odd)
 {
-	BidirIt	next;
-
-	next = first;
-	if (first != last && groupFirst < groupEnd)
+	if (it != end)
 	{
-		++next;
-		if (!(groupFirst % 2) && next != last)
+		Unit<InputIt> unit;
+
+		unit.init(it, unitSize);
+		if (odd)
 		{
-			s.push_back(*first);
-			next = _insertJacobsthalSort(s, next, last, groupFirst + 1, groupEnd);
+			s.insert(s.end(), unit.begin, unit.end);
+			it = _insertGroup(s, unit.end, end, unitSize, size, !odd);
 		}
 		else
 		{
-			next = _insertJacobsthalSort(s, next, last, groupFirst + 1, groupEnd);
-			_insert(s, s.begin(), first, s.size());
+			if (s.size() < size)
+				it = _insertGroup(s, unit.end, end, unitSize, size, !odd);
+			_insert(s, s.begin(), unit, unitSize, std::min(size, s.size()));
 		}
 	}
-	return (next);
+	return (it);
 }
 
 template <class Container>
-clock_t			mergeInsertSort(Container &s)
+static void _insertSort(Container &s, Container &x, size_t unitSize)
 {
-	clock_t							clockStart(std::clock());
-	typename Container::iterator	insertFirst;
-	size_t							groupFirst;
-	size_t							groupLast;
-	size_t							groupNext;
-	Container						x;
+	typedef typename Container::iterator	InputIt;
+	size_t	insertSize = 1;
+	size_t	powerTwo = 1;
+	InputIt	end;
+	InputIt	it;
 
-	s.swap(x);
-	if (x.size() % 2)
-		_mergePairSort(x.begin(), --x.end(), x.size());
-	else
-		_mergePairSort(x.begin(), x.end(), x.size());
-	groupLast = 2;
-	groupFirst = 2;
-	insertFirst = _insertJacobsthalSort(s, x.begin(), x.end(), 0, groupLast);
-	while (insertFirst != x.end())
+	it = std::next(x.begin(), unitSize);
+	end = std::next(x.begin(), floorMult(x.size(), unitSize));
+	s.insert(s.begin(), x.begin(), it);
+	while (it != end)
 	{
-		groupNext = groupLast + groupFirst * 2;
-		groupFirst = groupLast;
-		groupLast = groupNext;
-		insertFirst = _insertJacobsthalSort(s, insertFirst, x.end(), groupFirst, groupLast);
+		powerTwo *= 2;
+		insertSize += powerTwo;
+		it = _insertGroup(s, it, end, unitSize, insertSize * unitSize, true);
+		if (it != end)
+			std::advance(it, unitSize);
 	}
+	s.insert(s.end(), end, x.end());
+}
+
+template <class Container>
+static void	_mergeInsertSort(Container &s, size_t unitSize)
+{
+	if (unitSize * 2 <= s.size())
+	{
+		Container	x;
+
+		s.swap(x);
+		_pairSort(x, unitSize);
+		_mergeInsertSort(x, unitSize * 2);
+		_insertSort(s, x, unitSize);
+	}
+}
+
+template <class Container>
+clock_t	PmergeMe(Container &s)
+{
+	clock_t	clockStart(std::clock());
+	_mergeInsertSort(s, 1);
 	return (std::clock() - clockStart);
 }

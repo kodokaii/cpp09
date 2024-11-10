@@ -6,7 +6,7 @@
 /*   By: nlaerema <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 20:04:23 by nlaerema          #+#    #+#             */
-/*   Updated: 2024/03/29 13:48:53 by nlaerema         ###   ########.fr       */
+/*   Updated: 2024/11/12 09:35:29 by nlaerema         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,9 @@
 #include <iostream>
 #include "PmergeMe.hpp"
 
-typedef unsigned int t_uint;
-
 #define CLOCK_TO_US(clock) double(clock) / double(CLOCKS_PER_SEC) * 1e+6
 
-int	fillContainer(int argc, char *argv[], std::list<t_uint> &list, std::deque<t_uint> &deque)
+int	fillContainer(int argc, char *argv[], std::list<uint> &list, std::deque<uint> &deque)
 {
 	int		i;
 	char	*end;
@@ -41,8 +39,8 @@ int	fillContainer(int argc, char *argv[], std::list<t_uint> &list, std::deque<t_
 
 int	main(int argc, char *argv[])
 {
-	std::list<t_uint>	list;	
-	std::deque<t_uint>	deque;
+	std::list<uint>		list;	
+	std::deque<uint>	deque;
 	clock_t				listClock;
 	clock_t				dequeClock;
 	int					i;
@@ -56,8 +54,8 @@ int	main(int argc, char *argv[])
 	for (i = 1; i < argc; i++)
 		std::cout << " " << deque[i - 1];
 	std::cout << std::endl;
-	listClock = mergeInsertSort(list);
-	dequeClock = mergeInsertSort(deque);
+	listClock = PmergeMe(list);
+	dequeClock = PmergeMe(deque);
 	std::cout << "After: ";
 	for (i = 1; i < argc; i++)
 		std::cout << " " << deque[i - 1];
